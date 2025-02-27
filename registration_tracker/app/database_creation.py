@@ -1,5 +1,5 @@
 import sqlite3
-# connects to tutorial.db file in current working directory
+
 # implicitly creates it if it does not exist
 con = sqlite3.connect("reg_tracker.db")
 # con represents the connection to the on-disk database
