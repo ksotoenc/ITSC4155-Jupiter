@@ -12,7 +12,7 @@ Additionally, student advisors can:
 * Provide students with feedback on created plans
 * Suggest edits or new plans altogether
 
-Our technologies used include Python, MySQL/SQLAlchemy for relational databases, and Streamlit as our front-end framework and server host.
+Our technologies used include Python, SQLite for relational databases, and Streamlit as our front-end framework and server host.
 
 Currently, the team is working on creating a simple front-end with Streamlit as well as our database/schema to display a student's pre-made graduation plan
 
