@@ -1,0 +1,35 @@
+import sqlite3
+
+DB_NAME = "reg_tracker.db"
+
+# Function to create a connection to SQLite
+def get_db_connection():
+    con = sqlite3.connect(DB_NAME)
+    con.row_factory = sqlite3.Row  # Enables dictionary-like row access
+    return con
+
+# get one student
+def get_student(id, selection="*"):
+    query = """ SELECT ? FROM Students
+                WHERE id = ?
+                LIMIT 1 """
+    con = get_db_connection()
+    student = con.execute(query, (selection, id,)).fetchone()
+    con.close()
+    return student
+
+# get several students from an advisor
+def get_students(advisor_id, selection="*"):
+    query = """ SELECT ? FROM Students
+                WHERE advisor_id = ?
+                """
+    con = get_db_connection()
+    students = con.execute(query, (selection, advisor_id,)).fetchall()
+    con.close()
+    return students
+
+# update a student (admin)
+def update_student():
+
+# delete a course (admin)
+def delete_student():

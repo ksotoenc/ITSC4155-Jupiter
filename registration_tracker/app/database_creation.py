@@ -94,110 +94,116 @@ cur.execute(student_table)
 cur.execute(advisor_table)
 
 #region Add temp values into tables
-# courses
-cur.execute("""
-            INSERT INTO Courses VALUES
-            ('ITSC', 4155, 'Software Development Projects', 3),
-            ('ITSC', 2214, 'Data Structures and Algorithms', 3),
-            ('ITSC', 1213, 'Introduction to Computer Science II', 4),
-            ('ITSC', 1212, 'Introduction to Computer Science I', 4),
-            ('MATH', 1101, 'College Algebra with Workshop', 4),
-            ('MATH', 1103, 'Precalculus Mathematics for Science and Engineering', 3),
-            ('MATH', 1120, 'Calculus', 3),
-            ('MATH', 1241, 'Calculus I', 3),
-            ('ITSC', 3155, 'Software Engineering', 3),
-            ('ITIS', 3300, 'Software Req & Project Mgmt', 3),
-            ('ITIS', 3135, 'Web-Based Application Design and Development', 3),
-            ('ITIS', 3310, 'Software Arch & Design', 3)
-            """)
-con.commit()
+def get_course():
+    query = "SELECT * FROM Courses LIMIT 1"
+    course = con.execute(query).fetchone()
+    return course
 
-# prerequisites
-cur.execute("""
-            INSERT INTO Prerequisites VALUES
-            ('ITSC', 4155, 0, 'ITSC', 2214),
-            ('ITSC', 4155, 1, 'ITSC', 3155),
-            ('ITSC', 4155, 1, 'ITIS', 3300),
-            ('ITSC', 4155, 1, 'ITIS', 3310),
-            ('ITSC', 2214, 0, 'ITSC', 1213),
-            ('ITSC', 1213, 0, 'ITSC', 1212),
-            ('ITSC', 1213, 1, 'MATH', 1101),
-            ('ITSC', 1213, 1, 'MATH', 1103),
-            ('ITSC', 1213, 1, 'MATH', 1120),
-            ('ITSC', 1213, 1, 'MATH', 1241),
-            ('ITSC', 3155, 0, 'ITSC', 2214),
-            ('ITIS', 3300, 0, 'ITIS', 3135),
-            ('ITIS', 3135, 0, 'ITSC', 2214),
-            ('ITIS', 3310, 0, 'ITSC', 2214)
-            """)
-con.commit()
+if (get_course() is None):
+    # courses
+    cur.execute("""
+                INSERT INTO Courses VALUES
+                ('ITSC', 4155, 'Software Development Projects', 3),
+                ('ITSC', 2214, 'Data Structures and Algorithms', 3),
+                ('ITSC', 1213, 'Introduction to Computer Science II', 4),
+                ('ITSC', 1212, 'Introduction to Computer Science I', 4),
+                ('MATH', 1101, 'College Algebra with Workshop', 4),
+                ('MATH', 1103, 'Precalculus Mathematics for Science and Engineering', 3),
+                ('MATH', 1120, 'Calculus', 3),
+                ('MATH', 1241, 'Calculus I', 3),
+                ('ITSC', 3155, 'Software Engineering', 3),
+                ('ITIS', 3300, 'Software Req & Project Mgmt', 3),
+                ('ITIS', 3135, 'Web-Based Application Design and Development', 3),
+                ('ITIS', 3310, 'Software Arch & Design', 3)
+                """)
+    con.commit()
 
-# # coures_prerequisites
-cur.execute("""
-            INSERT INTO Course_Prerequisites VALUES
-            ('ITSC', 4155, 0),
-            ('ITSC', 4155, 1),
-            ('ITSC', 2214, 0),
-            ('ITSC', 1213, 0),
-            ('ITSC', 1213, 1),
-            ('ITSC', 3155, 0),
-            ('ITIS', 3300, 0),
-            ('ITIS', 3135, 0),
-            ('ITIS', 3310, 0)
-            """)
-con.commit()
+    # # prerequisites
+    cur.execute("""
+                INSERT INTO Prerequisites VALUES
+                ('ITSC', 4155, 0, 'ITSC', 2214),
+                ('ITSC', 4155, 1, 'ITSC', 3155),
+                ('ITSC', 4155, 1, 'ITIS', 3300),
+                ('ITSC', 4155, 1, 'ITIS', 3310),
+                ('ITSC', 2214, 0, 'ITSC', 1213),
+                ('ITSC', 1213, 0, 'ITSC', 1212),
+                ('ITSC', 1213, 1, 'MATH', 1101),
+                ('ITSC', 1213, 1, 'MATH', 1103),
+                ('ITSC', 1213, 1, 'MATH', 1120),
+                ('ITSC', 1213, 1, 'MATH', 1241),
+                ('ITSC', 3155, 0, 'ITSC', 2214),
+                ('ITIS', 3300, 0, 'ITIS', 3135),
+                ('ITIS', 3135, 0, 'ITSC', 2214),
+                ('ITIS', 3310, 0, 'ITSC', 2214)
+                """)
+    con.commit()
 
-# semesters
-cur.execute("""
-            INSERT INTO Semesters (term, year) VALUES
-            ('Spring', 2025),
-            ('Summer', 2024)
-            """)
-con.commit()
+    # # # coures_prerequisites
+    cur.execute("""
+                INSERT INTO Course_Prerequisites VALUES
+                ('ITSC', 4155, 0),
+                ('ITSC', 4155, 1),
+                ('ITSC', 2214, 0),
+                ('ITSC', 1213, 0),
+                ('ITSC', 1213, 1),
+                ('ITSC', 3155, 0),
+                ('ITIS', 3300, 0),
+                ('ITIS', 3135, 0),
+                ('ITIS', 3310, 0)
+                """)
+    con.commit()
 
-# course_semesters
-cur.execute("""
-            INSERT INTO Course_Semesters VALUES
-            (1, 'ITSC', 4155),
-            (1, 'ITIS', 3310),
-            (1, 'MATH', 1120),
-            (1, 'ITSC', 1213),
-            (1, 'MATH', 1241),
-            (2, 'ITIS', 3135),
-            (2, 'MATH', 1101),
-            (2, 'ITSC', 1212),
-            (2, 'MATH', 1103)
-            """)
-con.commit()
+    # # semesters
+    cur.execute("""
+                INSERT INTO Semesters (term, year) VALUES
+                ('Spring', 2025),
+                ('Summer', 2024)
+                """)
+    con.commit()
 
-# plans
-cur.execute("""
-            INSERT INTO Plans (name, num_semesters, student_id, advisor_id) VALUES
-            ('test plan', 2, 1600343, 3409243)
-            """)
-con.commit()
+    # # course_semesters
+    cur.execute("""
+                INSERT INTO Course_Semesters VALUES
+                (1, 'ITSC', 4155),
+                (1, 'ITIS', 3310),
+                (1, 'MATH', 1120),
+                (1, 'ITSC', 1213),
+                (1, 'MATH', 1241),
+                (2, 'ITIS', 3135),
+                (2, 'MATH', 1101),
+                (2, 'ITSC', 1212),
+                (2, 'MATH', 1103)
+                """)
+    con.commit()
 
-# plan_semesters
-cur.execute("""
-            INSERT INTO Plan_Semesters VALUES
-            (1, 1),
-            (2, 1)
-            """)
-con.commit()
+    # # plans
+    cur.execute("""
+                INSERT INTO Plans (name, num_semesters, student_id, advisor_id) VALUES
+                ('test plan', 2, 1600343, 3409243)
+                """)
+    con.commit()
 
-# students
-cur.execute("""
-            INSERT INTO Students VALUES
-            (1600343, 'lusername', 'lpassw0rd', 'Computer Science', null, 3409243)
-            """)
-con.commit()
+    # # plan_semesters
+    cur.execute("""
+                INSERT INTO Plan_Semesters VALUES
+                (1, 1),
+                (2, 1)
+                """)
+    con.commit()
 
-# advisors
-cur.execute("""
-            INSERT INTO Advisors VALUES
-            (3409243, 'adv_username', 'adv_passw0rd', 'Barry Benson')
-            """)
-con.commit()
+    # # students
+    cur.execute("""
+                INSERT INTO Students VALUES
+                (1600343, 'lusername', 'lpassw0rd', 'Computer Science', null, 3409243)
+                """)
+    con.commit()
 
-#endregion
+    # # advisors
+    cur.execute("""
+                INSERT INTO Advisors VALUES
+                (3409243, 'adv_username', 'adv_passw0rd', 'Barry Benson')
+                """)
+    con.commit()
+
+# #endregion
 con.close()
