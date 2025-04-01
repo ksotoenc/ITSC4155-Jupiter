@@ -83,6 +83,27 @@ advisor_table = """ CREATE TABLE IF NOT EXISTS Advisors (
                     name TEXT NOT NULL
                     ) WITHOUT ROWID;
                     """
+note_table = """    CREATE TABLE IF NOT EXISTS Notes (
+                    id INTEGER PRIMARY KEY,
+                    content TEXT NOT NULL,
+                    created_at INTEGER NOT NULL,
+                    student_id INTEGER,
+                    advisor_id INTEGER,
+                    plan_id INTEGER NOT NULL,
+                    FOREIGN KEY(student_id) REFERENCES Students(id),
+                    FOREIGN KEY(advisor_id) REFERENCES Advisors(id),
+                    FOREIGN KEY(plan_id) REFERENCES Plans(id)
+                    );
+                    
+                    ALTER TABLE Notes (
+                    ADD CONSTRAINT only_one_not_null
+                    CHECK (num_nonnulls(student_id, advisor_id) = 1);
+                    """
+major_table = """   CREATE TABLE IF NOT EXISTS Majors (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    department TEXT NOT NULL
+                    ); """
 
 # Create tables in database if they don't exist
 cur.execute(prereq_table)
