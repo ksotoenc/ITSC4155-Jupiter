@@ -8,4 +8,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY registration_tracker/app /app
 
+RUN python3 database_creation.py
+
 CMD [ "streamlit", "run", "home.py"]

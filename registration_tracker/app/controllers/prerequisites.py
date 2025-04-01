@@ -11,8 +11,8 @@ def get_db_connection():
 # get all prereqs
 def get_prereq(subject, number):
     query = """ SELECT * FROM Prerequisites p
-                JOIN Course_Prerequisites cp
-                ON c.parent_subject = cp.course_subject AND c.parent_number = cp.course_number AND c.group_id = cp.prequisite_group_id
+                JOIN Courses c
+                ON p.course_subject = c.subject AND p.course_number = c.number
                 WHERE parent_subject = ? AND parent_number = ? """
     con = get_db_connection()
     prereqs = con.execute(query, (subject, number)).fetchall()

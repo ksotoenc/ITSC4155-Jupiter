@@ -14,17 +14,10 @@ prereq_table = """  CREATE TABLE IF NOT EXISTS Prerequisites (
                     group_id INTEGER NOT NULL,
                     course_subject TEXT,
                     course_number INTEGER,
+                    FOREIGN KEY(parent_subject, parent_number) REFERENCES Courses(subject, number),
                     FOREIGN KEY(course_subject, course_number) REFERENCES Courses(subject, number)
                     );
                     """
-course_prereq_table = """   CREATE TABLE IF NOT EXISTS Course_Prerequisites (
-                            course_subject TEXT,
-                            course_number INTEGER,
-                            prerequisite_group_id INTEGER,
-                            FOREIGN KEY(course_subject, course_number) REFERENCES Courses(subject, number),
-                            FOREIGN KEY(course_subject, course_number, prerequisite_group_id) REFERENCES Prerequisites(parent_subject, parent_number, group_id)
-                            );
-                            """
 course_table = """  CREATE TABLE IF NOT EXISTS Courses (
                     subject TEXT,
                     number INTEGER,
@@ -114,7 +107,6 @@ major_req_table = """   CREATE TABLE IF NOT EXISTS Major_Requirements (
 
 # Create tables in database if they don't exist
 cur.execute(prereq_table)
-cur.execute(course_prereq_table)
 cur.execute(course_table)
 cur.execute(course_semester_table)
 cur.execute(semester_table)
@@ -171,21 +163,6 @@ if (get_course() is None):
                 """)
     con.commit()
 
-    # coures_prerequisites
-    cur.execute("""
-                INSERT INTO Course_Prerequisites VALUES
-                ('ITSC', 4155, 0),
-                ('ITSC', 4155, 1),
-                ('ITSC', 2214, 0),
-                ('ITSC', 1213, 0),
-                ('ITSC', 1213, 1),
-                ('ITSC', 3155, 0),
-                ('ITIS', 3300, 0),
-                ('ITIS', 3135, 0),
-                ('ITIS', 3310, 0)
-                """)
-    con.commit()
-
     # semesters
     cur.execute("""
                 INSERT INTO Semesters (term, year) VALUES
@@ -227,7 +204,8 @@ if (get_course() is None):
     # students
     cur.execute("""
                 INSERT INTO Students VALUES
-                (1600343, 'Terry', 'Trombo', 'lusername', 'lpassw0rd', 'Computer Science', null, 3409243)
+                (1600343, 'Terry', 'Trombo', 'tbone', 'password', 'Computer Science', null, 3409243),
+                (1600344, 'Jerry', 'Johnson', 'uname', 'pword', 'Computer Science', null, 3409243)
                 """)
     con.commit()
 
