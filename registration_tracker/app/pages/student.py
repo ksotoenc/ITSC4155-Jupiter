@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-# from app_utils import get_student, get_student_plan
+# from app_utils import *
 import controllers.students as c_student
 import controllers.advisors as c_advisor
 import controllers.plans as c_plan
@@ -10,7 +10,6 @@ import controllers.courses as c_course
 if "username" in st.session_state and st.session_state.username:
     username = st.session_state.username
     student = c_student.get_student("username", username)
-    st.title("Student Information 📖")
     st.write(f"Welcome, {student['f_name']} {student['l_name']}!\n")
 
     if student:
