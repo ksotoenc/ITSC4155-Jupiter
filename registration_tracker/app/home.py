@@ -33,34 +33,32 @@ Please log in below to access your personalized dashboard.
 """)
 
 # Login Form
-role = st.radio("Select your role", ["Student", "Advisor"])
 username = st.text_input("Username")
 st.session_state.username = username
 password = st.text_input("Password", type="password")
 
 if st.button("Login"):
-    if role == "Student":
-        username_index = -1
-        try:
-            username_index = s_usernames.index(username)
-        except ValueError:
-            pass
-        if username_index != -1 and s_passwords[username_index] == password:
+    username_index = -1
+    try:
+        username_index = s_usernames.index(username)
+    except ValueError:
+        pass
+    # if username is in student username list
+    if username_index != -1:
+        if s_passwords[username_index] == password:
             st.switch_page("pages/student.py")
         else:
             st.error("Role selected and/or credentials do not match. Please try again.")
-    elif role == "Advisor":
-        username_index = -1
+    else:   # username not in student list
         try:
             username_index = a_usernames.index(username)
         except ValueError:
             pass
+        # if username is in admin username list
         if username_index != -1 and a_passwords[username_index] == password:
             st.switch_page("pages/advisor.py")
         else:
             st.error("Role selected and/or credentials do not match. Please try again.")
-    else:
-        st.error("Role selected and/or credentials do not match. Please try again.")
 
 st.markdown("""
     <hr>
