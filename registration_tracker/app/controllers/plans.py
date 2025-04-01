@@ -14,32 +14,44 @@ def create_plan(student_id, advisor_id, name="Registration Plan"):
                 VALUES
                 (?, 0, ?, ?) """
     con = get_db_connection()
-    plan = con.execute(query, (name, student_id, advisor_id,))
+    plan = con.execute(query, (name, student_id, advisor_id))
     con.commit()
     con.close()
 
-# get one plan
-def get_plan(id, selection="*"):
-    query = """ SELECT ? FROM Plans
+# get one plan from id
+def get_plan(id):
+    query = """ SELECT * FROM Plans
                 WHERE id = ?
                 LIMIT 1 """
     con = get_db_connection()
-    plan = con.execute(query, (selection, id,)).fetchone()
+    plan = con.execute(query, (id,)).fetchone()
+    con.close()
+    return plan
+
+# get first plan attatched to student
+def get_first_plan(student_id):
+    query = """ SELECT * FROM Plans
+                WHERE student_id = ?
+                LIMIT 1 """
+    con = get_db_connection()
+    plan = con.execute(query, (student_id,)).fetchone()
     con.close()
     return plan
 
 # get several plans from a student
-def get_plans(student_id, selection="*"):
-    query = """ SELECT ? FROM Plans
+def get_plans(student_id):
+    query = """ SELECT * FROM Plans
                 WHERE student_id = ?
                 """
     con = get_db_connection()
-    plans = con.execute(query, (selection, student_id,)).fetchall()
+    plans = con.execute(query, (student_id,)).fetchall()
     con.close()
     return plans
 
 # update a plan (admin)
 def update_plan():
+    pass
 
 # delete a course (admin)
 def delete_plan():
+    pass

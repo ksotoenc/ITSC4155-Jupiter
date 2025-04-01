@@ -66,6 +66,8 @@ plan_table = """    CREATE TABLE IF NOT EXISTS Plans (
                     """
 student_table = """ CREATE TABLE IF NOT EXISTS Students (
                     id INTEGER PRIMARY KEY,
+                    f_name TEXT NOT NULL,
+                    l_name TEXT NOT NULL,
                     username TEXT NOT NULL,
                     password TEXT NOT NULL,
                     major TEXT NOT NULL,
@@ -194,7 +196,7 @@ if (get_course() is None):
     # # students
     cur.execute("""
                 INSERT INTO Students VALUES
-                (1600343, 'lusername', 'lpassw0rd', 'Computer Science', null, 3409243)
+                (1600343, 'Terry', 'Trombo', 'lusername', 'lpassw0rd', 'Computer Science', null, 3409243)
                 """)
     con.commit()
 
