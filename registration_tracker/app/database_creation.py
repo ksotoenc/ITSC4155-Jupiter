@@ -84,7 +84,7 @@ advisor_table = """ CREATE TABLE IF NOT EXISTS Advisors (
                     ) WITHOUT ROWID;
                     """
 note_table = """    CREATE TABLE IF NOT EXISTS Notes (
-                    id INTEGER PRIMARY KEY,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     content TEXT NOT NULL,
                     created_at INTEGER NOT NULL,
                     student_id INTEGER,
@@ -97,11 +97,20 @@ note_table = """    CREATE TABLE IF NOT EXISTS Notes (
                     );
                     """
 major_table = """   CREATE TABLE IF NOT EXISTS Majors (
-                    id INTEGER PRIMARY KEY,
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT NOT NULL,
                     department TEXT NOT NULL
                     );
                     """
+major_req_table = """   CREATE TABLE IF NOT EXISTS Major_Requirements (
+                        major_id INTEGER,
+                        section TEXT NOT NULL,
+                        credit_requirement INTEGER,
+                        group_id INTEGER NOT NULL,
+                        course_subject TEXT,
+                        course_number INTEGER,
+                        FOREIGN KEY(course_subject, course_number) REFERENCES Courses(subject, number)
+                        );"""
 
 # Create tables in database if they don't exist
 cur.execute(prereq_table)
@@ -115,6 +124,7 @@ cur.execute(student_table)
 cur.execute(advisor_table)
 cur.execute(note_table)
 cur.execute(major_table)
+cur.execute(major_req_table)
 
 #region Add temp values into tables
 def get_course():
@@ -141,7 +151,7 @@ if (get_course() is None):
                 """)
     con.commit()
 
-    # # prerequisites
+    # prerequisites
     cur.execute("""
                 INSERT INTO Prerequisites VALUES
                 ('ITSC', 4155, 0, 'ITSC', 2214),
@@ -161,7 +171,7 @@ if (get_course() is None):
                 """)
     con.commit()
 
-    # # # coures_prerequisites
+    # coures_prerequisites
     cur.execute("""
                 INSERT INTO Course_Prerequisites VALUES
                 ('ITSC', 4155, 0),
@@ -176,7 +186,7 @@ if (get_course() is None):
                 """)
     con.commit()
 
-    # # semesters
+    # semesters
     cur.execute("""
                 INSERT INTO Semesters (term, year) VALUES
                 ('Spring', 2025),
@@ -184,7 +194,7 @@ if (get_course() is None):
                 """)
     con.commit()
 
-    # # course_semesters
+    # course_semesters
     cur.execute("""
                 INSERT INTO Course_Semesters VALUES
                 (1, 'ITSC', 4155),
@@ -199,14 +209,14 @@ if (get_course() is None):
                 """)
     con.commit()
 
-    # # plans
+    # plans
     cur.execute("""
                 INSERT INTO Plans (name, num_semesters, student_id, advisor_id) VALUES
                 ('test plan', 2, 1600343, 3409243)
                 """)
     con.commit()
 
-    # # plan_semesters
+    # plan_semesters
     cur.execute("""
                 INSERT INTO Plan_Semesters VALUES
                 (1, 1),
@@ -214,19 +224,43 @@ if (get_course() is None):
                 """)
     con.commit()
 
-    # # students
+    # students
     cur.execute("""
                 INSERT INTO Students VALUES
                 (1600343, 'Terry', 'Trombo', 'lusername', 'lpassw0rd', 'Computer Science', null, 3409243)
                 """)
     con.commit()
 
-    # # advisors
+    # advisors
     cur.execute("""
                 INSERT INTO Advisors VALUES
                 (3409243, 'adv_username', 'adv_passw0rd', 'Barry Benson')
                 """)
     con.commit()
 
-# #endregion
+    # notes
+    cur.execute("""
+                INSERT INTO Notes (content, created_at, student_id, advisor_id, plan_id) VALUES
+                ("This is a temporary note created by the advisor to show as an example for the notes feature!", 1748528160, NULL, 3409243, 1),
+                ("This is another note created by the student slightly later...", 1748538160, 1600343, NULL, 1)
+                """)
+    con.commit()
+
+    # majors
+    cur.execute("""
+                INSERT INTO Majors (name, department) VALUES
+                ("Computer Science, AI, Robotics, and Gaming Concentration, B.S.", "College of Computing and Informatics"),
+                ("Computer Science, Web/Mobile Development and Software Engineering Concentration, B.S.", "College of Computing and Informatics")
+                """)
+    con.commit()
+
+    # major_reqs
+    cur.execute("""
+                INSERT INTO Major_Requirements VALUES
+                (2, "Concentration", NULL, 0, "ITIS", 3135),
+                (2, "Core", NULL, 0, "ITSC", 1212)
+                """)
+    con.commit()
+
+#endregion
 con.close()
