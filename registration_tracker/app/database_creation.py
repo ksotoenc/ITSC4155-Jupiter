@@ -73,7 +73,8 @@ advisor_table = """ CREATE TABLE IF NOT EXISTS Advisors (
                     id INTEGER PRIMARY KEY,
                     username TEXT NOT NULL,
                     password TEXT NOT NULL,
-                    name TEXT NOT NULL
+                    f_name TEXT NOT NULL,
+                    l_name TEXT NOT NULL
                     ) WITHOUT ROWID;
                     """
 note_table = """    CREATE TABLE IF NOT EXISTS Notes (
@@ -212,7 +213,7 @@ if (get_course() is None):
     # advisors
     cur.execute("""
                 INSERT INTO Advisors VALUES
-                (3409243, 'adv_username', 'adv_passw0rd', 'Barry Benson')
+                (3409243, 'adv_username', 'adv_passw0rd', 'Barry', 'Benson')
                 """)
     con.commit()
 

@@ -34,7 +34,7 @@ if "username" in st.session_state and st.session_state.username:
             
             if plan:
                 st.write(f"**Plan Name:** {plan['name']}")
-                st.write(f"**Advisor:** {c_advisor.get_advisor(plan['advisor_id'])['name']}")
+                st.write(f"**Advisor:** {c_advisor.get_advisor(plan['advisor_id'])['f_name']} {c_advisor.get_advisor(plan['advisor_id'])['l_name']}")
 
                 # Get all semesters associated with plan
                 semesters = c_semester.get_semesters(plan['id'])
