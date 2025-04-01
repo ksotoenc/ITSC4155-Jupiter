@@ -92,14 +92,10 @@ note_table = """    CREATE TABLE IF NOT EXISTS Notes (
                     plan_id INTEGER NOT NULL,
                     FOREIGN KEY(student_id) REFERENCES Students(id),
                     FOREIGN KEY(advisor_id) REFERENCES Advisors(id),
-                    FOREIGN KEY(plan_id) REFERENCES Plans(id)
+                    FOREIGN KEY(plan_id) REFERENCES Plans(id),
+                    CHECK ((student_id IS NOT NULL AND advisor_id IS NULL) OR (student_id IS NULL AND advisor_id IS NOT NULL))
                     );
                     """
-adjust_note_table= """  ALTER TABLE Notes (
-                        ADD CONSTRAINT only_one_not_null
-                        CHECK (num_nonnulls(student_id, advisor_id) = 1
-                        );
-                        """
 major_table = """   CREATE TABLE IF NOT EXISTS Majors (
                     id INTEGER PRIMARY KEY,
                     name TEXT NOT NULL,
@@ -118,7 +114,6 @@ cur.execute(plan_table)
 cur.execute(student_table)
 cur.execute(advisor_table)
 cur.execute(note_table)
-#cur.execute(adjust_note_table)
 cur.execute(major_table)
 
 #region Add temp values into tables
