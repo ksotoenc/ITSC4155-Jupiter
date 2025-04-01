@@ -94,16 +94,18 @@ note_table = """    CREATE TABLE IF NOT EXISTS Notes (
                     FOREIGN KEY(advisor_id) REFERENCES Advisors(id),
                     FOREIGN KEY(plan_id) REFERENCES Plans(id)
                     );
-                    
-                    ALTER TABLE Notes (
-                    ADD CONSTRAINT only_one_not_null
-                    CHECK (num_nonnulls(student_id, advisor_id) = 1);
                     """
+adjust_note_table= """  ALTER TABLE Notes (
+                        ADD CONSTRAINT only_one_not_null
+                        CHECK (num_nonnulls(student_id, advisor_id) = 1
+                        );
+                        """
 major_table = """   CREATE TABLE IF NOT EXISTS Majors (
                     id INTEGER PRIMARY KEY,
                     name TEXT NOT NULL,
                     department TEXT NOT NULL
-                    ); """
+                    );
+                    """
 
 # Create tables in database if they don't exist
 cur.execute(prereq_table)
@@ -115,6 +117,9 @@ cur.execute(plan_semester_table)
 cur.execute(plan_table)
 cur.execute(student_table)
 cur.execute(advisor_table)
+cur.execute(note_table)
+#cur.execute(adjust_note_table)
+cur.execute(major_table)
 
 #region Add temp values into tables
 def get_course():
