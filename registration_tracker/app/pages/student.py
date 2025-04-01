@@ -14,18 +14,20 @@ if "username" in st.session_state and st.session_state.username:
     st.write(f"Welcome, {student['f_name']} {student['l_name']}!\n")
 
     if student:
-        # Create two columns for layout
+        st.subheader("Student Profile")
+        st.write(f"**Student ID:** {student['ID']}")
+        st.write(f"**Username:** {student['Username']}")
+        st.write(f"**Major:** {student['Major']}")
+        st.write(f"**Graduation Date:** {student['Graduation_Date'] or 'Not set'}")
+        st.write(f"**Advisor ID:** {student['advisor_id']}")
+
         col1, col2 = st.columns([1, 2])
-        
         with col1:
-            st.subheader("Student Profile")
-            st.write(f"**Student ID:*   * {student['ID']}")
-            st.write(f"**Username:** {student['Username']}")
-            st.write(f"**Major:** {student['Major']}")
-            st.write(f"**Graduation Date:** {student['Graduation_Date'] or 'Not set'}")
-            st.write(f"**Advisor ID:** {student['advisor_id']}")
-        
+            if st.button("View Plans"):
+                st.switch_page("pages/plans.py")
         with col2:
+            if st.button("Update Profile"):
+                st.write("This feature is not yet implemented.")
             st.subheader("Academic Plan")
             
             # Get and display the student's plan
