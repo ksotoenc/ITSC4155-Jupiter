@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-# Import controller functions - Note: get_all functions will be imported dynamically
+# Import controller functions
 from controllers.students import add_student, update_student, delete_student
 from controllers.advisors import add_advisor, update_advisor, delete_advisor
 from controllers.courses import add_course, update_course, delete_course
