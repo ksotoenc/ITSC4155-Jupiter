@@ -11,15 +11,6 @@ def get_db_connection():
     conn.row_factory = sqlite3.Row  # Enables dictionary-like row access
     return conn
 
-# Replace with function to get sample student data from SQLite
-@st.cache_resource
-def get_student(user):
-    query = "SELECT ID, Username, Major, Graduation_Date, advisor_id FROM Students WHERE Username = ?"
-    conn = get_db_connection()
-    student = conn.execute(query, (user,)).fetchone()
-    conn.close()
-    return student
-
 # Retrieve a student's academic plan including all semesters and courses.
 def get_student_plan(student_id, name):
     conn = get_db_connection()
@@ -91,28 +82,6 @@ def get_student_plan(student_id, name):
     conn.close()
     return plan_data
 
-def create_plan(student_id, plan_name, major, start_date):
-    conn = get_db_connection()
-    
-    # Get the advisor ID for the student
-    advisor_query = "SELECT advisor_id FROM Students WHERE ID = ?"
-    advisor_id = conn.execute(advisor_query, (student_id,)).fetchone()
-    
-    if not advisor_id:
-        conn.close()
-        return None
-    
-    # Insert the new plan
-    plan_insert = """
-    INSERT INTO Plans (student_id, advisor_id, name, num_semesters)
-    VALUES (?, ?, ?, ?)
-    """
-    conn.execute(plan_insert, (student_id, advisor_id['advisor_id'], plan_name, 8))
-
-    conn.commit()
-    conn.close()
-    return True
-
 # Display a given plan
 def display_plan(plan):
     """
@@ -154,20 +123,5 @@ def display_plan(plan):
         st.metric("Total Credits", total_credits)
     else:
         st.warning(f"No academic plan found.")
-
-def get_plan_names(student_id):
-    conn = get_db_connection()
-    
-    # Get all plans for the student
-    plans_query = """
-    SELECT name
-    FROM Plans 
-    WHERE student_id = ?
-    """
-    result = conn.execute(plans_query, (student_id,)).fetchall()
-    plan_names = [row['name'] for row in result]
-    plan_names.insert(0, 'Select a plan...')  # Add default option
-    conn.close()
-    return plan_names
 
 # MUST ADD MAJOR AND COURSES ASSIGNED TO THEM TO FUNCTIONALITY TO ACTUALLY CREATE A PLAN

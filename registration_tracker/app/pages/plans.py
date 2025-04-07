@@ -1,5 +1,10 @@
 import streamlit as st
-from app_utils import *
+import controllers.students as c_student
+import controllers.advisors as c_advisor
+import controllers.plans as c_plan
+import controllers.semesters as c_semester
+import controllers.courses as c_course
+from app_utils import display_plan
 
 # If user is logged in, show the plans page
 if "username" in st.session_state and st.session_state.username:
@@ -15,8 +20,7 @@ if "username" in st.session_state and st.session_state.username:
     if "start_term" not in st.session_state:
         st.session_state.start_term = ""
 
-    conn = get_db_connection()
-    student = get_student(username)
+    student = c_student.get_student("username", username)
 
     col1, col2 = st.columns([1, 2])
     with col1:
@@ -40,17 +44,16 @@ if "username" in st.session_state and st.session_state.username:
             if st.button('Run'):
                 if st.session_state.plan_name and st.session_state.major and st.session_state.start_term:
                     # Check if student already has plan with said name. If it does, return an error message.
-                    existing_plan_query = "SELECT * FROM Plans WHERE name = ? AND student_id = ?"
-                    existing_plan = conn.execute(existing_plan_query, (st.session_state.plan_name, student['ID'])).fetchone()
+                    existing_plan = c_plan.get_plan(st.session_state.plan_name, "student", student['ID'])
                     
                     if existing_plan:
                         st.error("A plan with this name already exists. Please choose a different name.")
                     else:
                         # Call the create_plan function
-                        plan_created = create_plan(student['ID'], st.session_state.plan_name, st.session_state.major, st.session_state.start_term)
+                        plan_created = c_plan.create_plan(student['ID'],  student['advisor_ID'], st.session_state.plan_name, st.session_state.major, st.session_state.start_term)
                         if plan_created:
                             st.success(f"Plan '{st.session_state.plan_name}' created successfully!")
-                            plan = get_student_plan(student['ID'], st.session_state.plan_name)
+                            plan = c_plan.get_plan(st.session_state.plan_name, "student", student['ID'],)
                         else:
                             st.error("Failed to create the plan. Please try again.")
                 else:
@@ -62,9 +65,12 @@ if "username" in st.session_state and st.session_state.username:
             st.session_state.viewing_plan = True
 
         if st.session_state.get("viewing_plan", False):
-            selected_plan = st.selectbox("Select a plan to view", options=get_plan_names(student['ID']), placeholder='')  # Replace with actual plan names from the database
+            plans = c_plan.get_plans("student", student['ID'])
+            plan_names = [plan['name'] for plan in plans]
+            plan_names.insert(0, 'Select a plan...')
+            selected_plan = st.selectbox("Select a plan to view", options=plan_names, placeholder='')  # Replace with actual plan names from the database
             if selected_plan != 'Select a plan...':
-                plan = get_student_plan(student['ID'], selected_plan)
+                plan = c_plan.get_plan(selected_plan, "student", student['ID'])
                 display_plan(plan)
 else:
     st.write("Please log in to view this page.")

@@ -1,6 +1,10 @@
 import streamlit as st
 import pandas as pd
-from app_utils import get_student, get_student_plan
+import controllers.students as c_student
+import controllers.advisors as c_advisor
+import controllers.plans as c_plan
+import controllers.semesters as c_semester
+import controllers.courses as c_course
 
 st.title("Advisor Dashboard 🏫")
 st.write("Here, advisors can manage and review student plans.")

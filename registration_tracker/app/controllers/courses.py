@@ -19,8 +19,15 @@ def get_course(subject, number):
     return course
 
 # get several courses from prereq
-def get_courses( ):
+def get_courses_prereq():
     pass
+
+def get_all_courses():
+    query = """ SELECT * FROM Courses """
+    con = get_db_connection()
+    courses = con.execute(query).fetchall()
+    con.close()
+    return courses
 
 # get several courses from semester
 def get_semester_courses(semester_id):
@@ -34,10 +41,60 @@ def get_semester_courses(semester_id):
     con.close()
     return courses
 
+# add a course (admin)
+def add_course(subject, number, name, credits):
+    query = """ INSERT INTO Courses (subject, number, name, credits)
+                VALUES (?, ?, ?, ?) """
+    con = get_db_connection()
+    try:
+        con.execute(query, (subject, number, name, credits))
+        con.commit()
+        return {"success": True, "message": "Course added successfully."}
+    except sqlite3.IntegrityError as e:
+        return {"success": False, "message": f"Error adding course: {e}"}
+    finally:
+        con.close()
+
 # update a course (admin)
-def update_course():
-    pass
+def update_course(subject, number, name=None, credits=None):
+    fields = []
+    values = []
+
+    if name:
+        fields.append("name = ?")
+        values.append(name)
+    if credits:
+        fields.append("credits = ?")
+        values.append(credits)
+
+    if not fields:
+        return {"success": False, "message": "No fields to update."}
+
+    query = f""" UPDATE Courses
+                 SET {', '.join(fields)}
+                 WHERE subject = ? AND number = ? """
+    values.extend([subject, number])
+
+    con = get_db_connection()
+    try:
+        con.execute(query, values)
+        con.commit()
+        return {"success": True, "message": "Course updated successfully."}
+    except sqlite3.Error as e:
+        return {"success": False, "message": f"Error updating course: {e}"}
+    finally:
+        con.close()
 
 # delete a course (admin)
-def delete_course():
-    pass
+def delete_course(subject, number):
+    query = """ DELETE FROM Courses
+                WHERE subject = ? AND number = ? """
+    con = get_db_connection()
+    try:
+        con.execute(query, (subject, number))
+        con.commit()
+        return {"success": True, "message": "Course deleted successfully."}
+    except sqlite3.Error as e:
+        return {"success": False, "message": f"Error deleting course: {e}"}
+    finally:
+        con.close()

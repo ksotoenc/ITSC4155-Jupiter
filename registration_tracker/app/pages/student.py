@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-# from app_utils import *
 import controllers.students as c_student
 import controllers.advisors as c_advisor
 import controllers.plans as c_plan

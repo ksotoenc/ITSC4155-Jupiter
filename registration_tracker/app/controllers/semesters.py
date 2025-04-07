@@ -35,10 +35,77 @@ def get_semesters(plan_id):
     con.close()
     return semesters
 
-# update a semester (admin)
-def update_semester():
-    pass
+# get all entries in Semesters table
+def get_all_semesters():
+    query = """ SELECT * FROM Semesters """
+    con = get_db_connection()
+    semesters = con.execute(query).fetchall()
+    con.close()
+    return semesters
 
-# delete a course (admin)
-def delete_semester():
-    pass
+# add a semester
+def add_semester(term, year):
+    """
+    Adds a new semester to the Semesters table.
+    """
+    query = """ INSERT INTO Semesters (term, year)
+                VALUES (?, ?) """
+    con = get_db_connection()
+    try:
+        con.execute(query, (term, year))
+        con.commit()
+        return {"success": True, "message": "Semester added successfully."}
+    except sqlite3.IntegrityError as e:
+        return {"success": False, "message": f"Error adding semester: {e}"}
+    finally:
+        con.close()
+
+# update a semester (admin)
+def update_semester(id, term=None, year=None):
+    """
+    Updates an existing semester in the Semesters table.
+    """
+    fields = []
+    values = []
+
+    if term:
+        fields.append("term = ?")
+        values.append(term)
+    if year:
+        fields.append("year = ?")
+        values.append(year)
+
+    if not fields:
+        return {"success": False, "message": "No fields to update."}
+
+    query = f""" UPDATE Semesters
+                 SET {', '.join(fields)}
+                 WHERE id = ? """
+    values.append(id)
+
+    con = get_db_connection()
+    try:
+        con.execute(query, values)
+        con.commit()
+        return {"success": True, "message": "Semester updated successfully."}
+    except sqlite3.Error as e:
+        return {"success": False, "message": f"Error updating semester: {e}"}
+    finally:
+        con.close()
+
+# delete a semester (admin)
+def delete_semester(id):
+    """
+    Deletes a semester from the Semesters table.
+    """
+    query = """ DELETE FROM Semesters
+                WHERE id = ? """
+    con = get_db_connection()
+    try:
+        con.execute(query, (id,))
+        con.commit()
+        return {"success": True, "message": "Semester deleted successfully."}
+    except sqlite3.Error as e:
+        return {"success": False, "message": f"Error deleting semester: {e}"}
+    finally:
+        con.close()
