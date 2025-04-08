@@ -110,6 +110,16 @@ major_req_table = """   CREATE TABLE IF NOT EXISTS Major_Requirements (
                         FOREIGN KEY(course_subject, course_number) REFERENCES Courses(subject, number)
                         );"""
 
+plan_semester_courses_table = """ CREATE TABLE IF NOT EXISTS Plan_Semester_Courses (
+                                plan_id INTEGER,
+                                semester_id INTEGER,
+                                course_subject TEXT,
+                                course_number INTEGER,
+                                FOREIGN KEY(plan_id) REFERENCES Plans(id),
+                                FOREIGN KEY(semester_id) REFERENCES Semesters(id),
+                                FOREIGN KEY(course_subject, course_number) REFERENCES Courses(subject, number)
+                                );"""
+
 # Create tables in database if they don't exist
 cur.execute(prereq_table)
 cur.execute(course_table)
@@ -122,6 +132,7 @@ cur.execute(advisor_table)
 cur.execute(note_table)
 cur.execute(major_table)
 cur.execute(major_req_table)
+cur.execute(plan_semester_courses_table)
 
 #region Add temp values into tables
 def get_course():
@@ -171,8 +182,14 @@ con.commit()
 # semesters
 cur.execute("""
             INSERT INTO Semesters (term, year) VALUES
-            ('Spring', 2025),
-            ('Summer', 2024)
+            ('Fall', 2025),
+            ('Spring', 2026),
+            ('Fall', 2026), 
+            ('Spring', 2027),
+            ('Fall', 2027),
+            ('Spring', 2028),
+            ('Fall', 2028),
+            ('Spring', 2029)
             """)
 con.commit()
 
@@ -237,11 +254,28 @@ cur.execute("""
             """)
 con.commit()
 
-# major_reqs
+# major_requirements
 cur.execute("""
             INSERT INTO Major_Requirements VALUES
+            -- Core courses for Web/Mobile Dev and Software Engineering Concentration
+            (2, "Core", NULL, 0, "ITSC", 1212),
+            (2, "Core", NULL, 0, "ITSC", 1213),
+            (2, "Core", NULL, 0, "ITSC", 2214),
+            (2, "Core", NULL, 0, "ITSC", 3155),
+            (2, "Core", NULL, 0, "MATH", 1241),
             (2, "Concentration", NULL, 0, "ITIS", 3135),
-            (2, "Core", NULL, 0, "ITSC", 1212)
+            (2, "Concentration", NULL, 0, "ITIS", 3300),
+            (2, "Concentration", NULL, 0, "ITIS", 3310),
+            (2, "Concentration", NULL, 0, "ITSC", 4155),
+            -- Core courses for AI, Robotics, and Gaming Concentration
+            (1, "Core", NULL, 0, "ITSC", 1212),
+            (1, "Core", NULL, 0, "ITSC", 1213),
+            (1, "Core", NULL, 0, "ITSC", 2214),
+            (1, "Core", NULL, 0, "MATH", 1241),
+            (1, "Core", NULL, 0, "MATH", 1120),
+            (1, "Concentration", NULL, 0, "ITSC", 3155),
+            (1, "Concentration", NULL, 0, "ITSC", 4155),
+            (1, "Concentration", NULL, 0, "MATH", 1103)
             """)
 con.commit()
 

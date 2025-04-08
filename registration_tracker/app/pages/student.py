@@ -15,7 +15,7 @@ if "username" in st.session_state and st.session_state.username:
         st.subheader("Student Profile")
         st.write(f"**Student ID:** {student['ID']}")
         st.write(f"**Username:** {student['Username']}")
-        st.write(f"**Major:** {student['Major']}")
+        st.write(f"**Major:** {student['major_id']}")
         st.write(f"**Graduation Date:** {student['Graduation_Date'] or 'Not set'}")
         st.write(f"**Advisor ID:** {student['advisor_id']}")
 

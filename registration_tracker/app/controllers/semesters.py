@@ -18,7 +18,7 @@ def get_semester(id):
     con.close()
     return semester
 
-# get several semesters
+# get semesters associated with a plan
 def get_semesters(plan_id):
     query = """ SELECT * FROM Semesters s
                 JOIN Plan_Semesters ps
@@ -27,8 +27,7 @@ def get_semesters(plan_id):
                 ORDER BY s.year, 
                     CASE 
                         WHEN s.term = 'Spring' THEN 1
-                        WHEN s.term = 'Summer' THEN 2
-                        WHEN s.term = 'Fall' THEN 3
+                        WHEN s.term = 'Fall' THEN 2
                     END"""
     con = get_db_connection()
     semesters = con.execute(query, (plan_id,)).fetchall()
