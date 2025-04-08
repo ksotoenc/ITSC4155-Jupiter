@@ -1,5 +1,4 @@
 import sqlite3
-import streamlit as st
 
 DB_NAME = "reg_tracker.db"
 
