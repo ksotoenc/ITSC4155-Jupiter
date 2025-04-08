@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import controllers.students as c_student
 import controllers.advisors as c_advisor
+import controllers.majors as c_major
 import controllers.plans as c_plan
 import controllers.semesters as c_semester
 import controllers.courses as c_course
@@ -15,7 +16,8 @@ if "username" in st.session_state and st.session_state.username:
         st.subheader("Student Profile")
         st.write(f"**Student ID:** {student['ID']}")
         st.write(f"**Username:** {student['Username']}")
-        st.write(f"**Major:** {student['Major']}")
+        major = c_major.get_major(student['major_id'])
+        st.write(f"**Major:** {major['name']}")
         st.write(f"**Graduation Date:** {student['Graduation_Date'] or 'Not set'}")
         st.write(f"**Advisor ID:** {student['advisor_id']}")
 

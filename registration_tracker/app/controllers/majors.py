@@ -8,6 +8,16 @@ def get_db_connection():
     con.row_factory = sqlite3.Row  # Enables dictionary-like row access
     return con
 
+# get a specific major
+def get_major(id):
+    query = """ SELECT * FROM Majors
+                WHERE id = ?
+                """
+    con = get_db_connection()
+    majors = con.execute(query, (id,)).fetchone()
+    con.close()
+    return majors
+
 # Get all majors
 def get_all_majors():
     """
