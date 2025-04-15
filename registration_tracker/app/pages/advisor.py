@@ -11,7 +11,8 @@ if "username" in st.session_state and st.session_state.username:
     st.title("Advisor Dashboard")
     username = st.session_state.username
     st.write(f"Welcome, {username}!\n")
-    students = c_student.get_all_students()
+    adv_id = c_advisor.get_advisor_user(st.session_state.username)['id']
+    students = c_student.get_students(adv_id)
     student_names = [f"{s['f_name']} {s['l_name']}" for s in students]
     selected_student = st.selectbox("Select a student", student_names)
 
