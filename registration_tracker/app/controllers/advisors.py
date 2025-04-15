@@ -18,6 +18,15 @@ def get_advisor(id):
     con.close()
     return advisor
 
+def get_advisor_user(user):
+    query = """ SELECT id FROM Advisors
+                WHERE username = ?
+                LIMIT 1 """
+    con = get_db_connection()
+    advisor = con.execute(query, (user,)).fetchone()
+    con.close()
+    return advisor
+
 # get all advisors
 def get_all_advisors():
     query = """ SELECT * FROM Advisors
