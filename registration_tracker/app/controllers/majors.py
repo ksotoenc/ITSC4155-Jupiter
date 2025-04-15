@@ -18,6 +18,18 @@ def get_major(id):
     con.close()
     return majors
 
+# Get a major ID by name
+def get_major_id(name):
+    """
+    Retrieves the ID of a major by its name.
+    """
+    query = """ SELECT id FROM Majors
+                WHERE name = ? """
+    con = get_db_connection()
+    major = con.execute(query, (name,)).fetchone()
+    con.close()
+    return major['id'] if major else None
+
 # Get all majors
 def get_all_majors():
     """

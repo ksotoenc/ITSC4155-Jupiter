@@ -42,7 +42,7 @@ if "username" in st.session_state and st.session_state.username:
                 
                 # Calculate total credits
                 total_credits = 0
-                
+              
                 # Display each semester with its courses
                 for semester in semesters:
                     semester_courses = c_course.get_semester_courses(semester['id'])

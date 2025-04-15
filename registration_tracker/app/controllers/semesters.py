@@ -18,7 +18,7 @@ def get_semester(id):
     con.close()
     return semester
 
-# get several semesters
+# get semesters associated with a plan
 def get_semesters(plan_id):
     query = """ SELECT * FROM Semesters s
                 JOIN Plan_Semesters ps
