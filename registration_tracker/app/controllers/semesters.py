@@ -9,12 +9,12 @@ def get_db_connection():
     return con
 
 # get one semester
-def get_semester(id):
+def get_semester(term, year):
     query = """ SELECT * FROM Semesters
-                WHERE id = ?
+                WHERE term = ? AND year = ? 
                 LIMIT 1 """
     con = get_db_connection()
-    semester = con.execute(query, (id,)).fetchone()
+    semester = con.execute(query, (term, year)).fetchone()
     con.close()
     return semester
 
@@ -42,6 +42,38 @@ def get_all_semesters():
     semesters = con.execute(query).fetchall()
     con.close()
     return semesters
+
+def insert_to_plan(plan_id, semester_id):
+    """
+    Inserts a new semester into the Plan_Semesters table.
+    Only inserts if the combination doesn't already exist.
+    """
+    # First check if this combination already exists
+    check_query = """ SELECT COUNT(*) FROM Plan_Semesters 
+                      WHERE plan_id = ? AND semester_id = ? """
+    
+    insert_query = """ INSERT INTO Plan_Semesters (plan_id, semester_id)
+                       VALUES (?, ?) """
+    
+    con = get_db_connection()
+    try:
+        # Check if the record already exists
+        cursor = con.execute(check_query, (plan_id, semester_id))
+        exists = cursor.fetchone()[0] > 0
+        
+        if exists:
+            # Record already exists, return success without inserting
+            return {"success": True, "message": "Semester is already in this plan."}
+        else:
+            # Record doesn't exist, so insert it
+            con.execute(insert_query, (plan_id, semester_id))
+            con.commit()
+            return {"success": True, "message": "Semester added to plan successfully."}
+    except sqlite3.Error as e:
+        # Catch any SQLite errors, not just IntegrityError
+        return {"success": False, "message": f"Error adding semester to plan: {e}"}
+    finally:
+        con.close()
 
 # add a semester
 def add_semester(term, year):

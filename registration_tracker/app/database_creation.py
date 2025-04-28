@@ -26,37 +26,33 @@ course_table = """  CREATE TABLE IF NOT EXISTS Courses (
                     PRIMARY KEY (subject, number)
                     ) WITHOUT ROWID;
                     """
-course_semester_table = """ CREATE TABLE IF NOT EXISTS Course_Semesters (
-                            semester_id INTEGER,
-                            course_subject TEXT,
-                            course_number INTEGER,
-                            FOREIGN KEY(semester_id) REFERENCES Semesters(id),
-                            FOREIGN KEY(course_subject, course_number) REFERENCES Courses(subject, number)
-                            );
-                            """
 semester_table = """    CREATE TABLE IF NOT EXISTS Semesters (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         term TEXT NOT NULL,
-                        year INTEGER NOT NULL
+                        year INTEGER NOT NULL,
+                        UNIQUE(term, year)
                         );
                         """
 plan_semester_table = """   CREATE TABLE IF NOT EXISTS Plan_Semesters (
                             semester_id INTEGER,
                             plan_id INTEGER,
                             FOREIGN KEY(semester_id) REFERENCES Semesters(id),
-                            FOREIGN KEY(plan_id) REFERENCES Plans(id)
+                            FOREIGN KEY(plan_id) REFERENCES Plans(id),
+                            UNIQUE(semester_id, plan_id)
                             );
                             """
 plan_table = """    CREATE TABLE IF NOT EXISTS Plans (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     name TEXT NOT NULL,
                     major_id INTEGER NOT NULL,
+                    concentration_id INTEGER,
                     num_semesters INTEGER NOT NULL,
                     student_id INTEGER NOT NULL,
                     advisor_id INTEGER,
                     FOREIGN KEY(student_id) REFERENCES Students(id),
                     FOREIGN KEY(advisor_id) REFERENCES Advisors(id)
                     FOREIGN KEY(major_id) REFERENCES Majors(id)
+                    FOREIGN KEY(concentration_id) REFERENCES Concentrations(id)
                     );
                     """
 student_table = """ CREATE TABLE IF NOT EXISTS Students (
@@ -191,7 +187,8 @@ plan_semester_courses_table = """ CREATE TABLE IF NOT EXISTS Plan_Semester_Cours
                                 course_number INTEGER,
                                 FOREIGN KEY(plan_id) REFERENCES Plans(id),
                                 FOREIGN KEY(semester_id) REFERENCES Semesters(id),
-                                FOREIGN KEY(course_subject, course_number) REFERENCES Courses(subject, number)
+                                FOREIGN KEY(course_subject, course_number) REFERENCES Courses(subject, number),
+                                UNIQUE(plan_id, semester_id, course_subject, course_number)
                                 );
                                 """
 #endregion
@@ -199,7 +196,6 @@ plan_semester_courses_table = """ CREATE TABLE IF NOT EXISTS Plan_Semester_Cours
 # Create tables in database if they don't exist
 cur.execute(prereq_table)
 cur.execute(course_table)
-cur.execute(course_semester_table)
 cur.execute(semester_table)
 cur.execute(plan_semester_table)
 cur.execute(plan_table)
@@ -219,8 +215,7 @@ cur.execute(gen_ed_section_req_table)
 cur.execute(minor_table)
 cur.execute(minor_section_table)
 cur.execute(minor_section_req_table)
-
-#cur.execute(plan_semester_courses_table)
+cur.execute(plan_semester_courses_table)
 
 #region Add temp values into tables
 
@@ -619,25 +614,10 @@ cur.execute("""
             """)
 con.commit()
 
-# course_semesters
-cur.execute("""
-            INSERT INTO Course_Semesters VALUES
-            (1, 'ITSC', 4155),
-            (1, 'ITIS', 3310),
-            (1, 'MATH', 1120),
-            (1, 'ITSC', 1213),
-            (1, 'MATH', 1241),
-            (2, 'ITIS', 3135),
-            (2, 'MATH', 1101),
-            (2, 'ITSC', 1212),
-            (2, 'MATH', 1103)
-            """)
-con.commit()
-
 # plans
 cur.execute("""
-            INSERT INTO Plans (name, major_id, num_semesters, student_id, advisor_id) VALUES
-            ('test plan', 1, 2, 1600343, 3409243)
+            INSERT INTO Plans (name, major_id, concentration_id, num_semesters, student_id, advisor_id) VALUES
+            ('test plan', 1, 1, 2, 1600343, 3409243)
             """)
 con.commit()
 
@@ -932,7 +912,7 @@ con.commit()
 cur.execute("""
             INSERT INTO Gen_Ed_Sections (section, credit_requirement) VALUES
             ("Communication Competency", 3),
-            ("Quantitative/Dat Competency Courses", 6),
+            ("Quantitative/Data Competency Courses", 6),
             ("Critical Thinking Competency", 3),
             ("Global and Local Themes", 12),
             ("Natural Sciences", 7)

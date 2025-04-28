@@ -45,7 +45,7 @@ if "username" in st.session_state and st.session_state.username:
               
                 # Display each semester with its courses
                 for semester in semesters:
-                    semester_courses = c_course.get_semester_courses(semester['id'])
+                    semester_courses = c_course.get_semester_courses(semester['id'], plan['id'])
                     semester_credits = sum(course['credits'] for course in semester_courses)
                     total_credits += semester_credits
                     

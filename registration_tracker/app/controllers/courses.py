@@ -19,8 +19,13 @@ def get_course(subject, number):
     return course
 
 # get several courses from prereq
-def get_courses_prereq():
-    pass
+def get_course_prereq(course_subject, course_number):
+    query = """ SELECT group_id, course_subject, course_number FROM Prerequisites
+                WHERE parent_subject = ? AND parent_number = ? """
+    con = get_db_connection()
+    prereqs = con.execute(query, (course_subject, course_number)).fetchall()
+    con.close()
+    return prereqs
 
 def get_all_courses():
     query = """ SELECT * FROM Courses """
@@ -30,14 +35,14 @@ def get_all_courses():
     return courses
 
 # get several courses from semester
-def get_semester_courses(semester_id):
+def get_semester_courses(semester_id, plan_id):
     query = """ SELECT * FROM Courses c
-                JOIN Course_Semesters cs
-                ON c.subject = cs.course_subject AND c.number = cs.course_number
-                WHERE cs.semester_id = ?
+                JOIN Plan_Semester_Courses pcs
+                ON c.subject = pcs.course_subject AND c.number = pcs.course_number
+                WHERE pcs.semester_id = ? AND pcs.plan_id = ?
                 ORDER BY c.subject, c.number """
     con = get_db_connection()
-    courses = con.execute(query, (semester_id,)).fetchall()
+    courses = con.execute(query, (semester_id, plan_id)).fetchall()
     con.close()
     return courses
 
