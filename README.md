@@ -20,8 +20,9 @@ RUNNING INSTRUCTIONS:
 2. Change working directories to /registration_tracker using this command: cd {your_root}/ITSC4155-Jupiter/registration_tracker
 3. Install dependencies using this command: pip install -r requirements.txt
 4. Change directories to /app using this command: cd app
-5. Run our app: streamlit run home.py
-6. Use these credentials to log in - username: uname, password: pword
+5. Run "python database_creation.py" to create the database if it doesn't exist. 
+6. Run our app: streamlit run home.py
+7. Use these credentials to log in - username: uname, password: pword
 
 TO RUN UNIT TESTS:
 1. Change working directories to /unit_tests. Use this command: cd {your_root}/ITSC4155-Jupiter/registration_tracker/app/unit_tests
