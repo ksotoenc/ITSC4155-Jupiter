@@ -23,3 +23,7 @@ RUNNING INSTRUCTIONS:
 5. Run our app: streamlit run home.py
 6. Use these credentials to log in - username: uname, password: pword
 
+TO RUN UNIT TESTS:
+1. Change working directories to /unit_tests. Use this command: cd {your_root}/ITSC4155-Jupiter/registration_tracker/app/unit_tests
+2. Run bash script driver. Use this command: ./driver.sh
+3. Alternatively, if Step 2 does not work, run each unit test file inside unit_tests individually. Use this command: python {filename}
