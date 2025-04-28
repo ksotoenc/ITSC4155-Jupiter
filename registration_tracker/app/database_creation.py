@@ -437,7 +437,58 @@ cur.execute("""
 
             -- CONCENTRATION PREREQUISITES
             ('BIOL', 2120, 'General Biology I', 3),
-            ('BIOL', 2130, 'General Biology II', 3)
+            ('BIOL', 2130, 'General Biology II', 3),
+
+            -- MINOR COURSES
+            ('MATH', 2171, 'Differential Equations', 3),
+            ('MATH', 2241, 'Calculus III', 3),
+            ('MATH', 2242, 'Calculus IV', 3),
+
+            ('AFRS', 2105, 'Black Images in the Media in the U.S.', 3),
+            ('AFRS', 3192, 'African Cinema', 3),
+            ('AMST', 3090, 'Topics in American Film', 3),
+            ('COMM', 3050, 'Topics in Communication Studies', 1),
+            ('COMM', 3052, 'Topics in Media & Technology Studies', 3),
+            ('COMM', 3125, 'New Media for Communications', 3),
+            ('ENGL', 2106, 'Film Criticism', 3),
+            ('ENGL', 3050, 'Topics in English', 3),
+            ('ENGL', 3072, 'Topics in Literature and Film', 3),
+            ('FILM', 3050, 'Topics in Film', 3),
+            ('FILM', 3051, 'Topics in Film', 3),
+            ('FILM', 3120, 'Fundamentals of Film & Media Production', 3),
+            ('FILM', 3121, 'Cinematic Storytelling', 3),
+            ('FILM', 3220, 'Introduction to Screenwriting', 3),
+            ('FILM', 3221, 'Advanced Screenwriting', 3),
+            ('FILM', 3800, 'Directed Project in Film or Video', 1),
+            ('FILM', 4120, 'Production and Directing', 3),
+            ('FILM', 4121, 'Creative Nonfiction Production', 3),
+            ('FILM', 4122, 'Music Video Production', 3),
+            ('FILM', 4220, 'Film Festivals & Impact Production', 3),
+            ('FILM', 4221, 'Community-Based Film Production', 3),
+            ('FILM', 4320, 'Acting & Directing for Film', 3),
+            ('FILM', 4410, 'Professional Internship in Film Studies', 1),
+            ('GERM', 3660, 'Survey of German Film', 3),
+            ('HIST', 3010, 'Non-Western History and Culture through Film', 3),
+            ('HIST', 3011, 'History and Culture through Film', 3),
+            ('JAPN', 3060, 'Topics in Japanese Film', 3),
+            ('JAPN', 3140, 'Anime and Japanese Popular Culture', 3),
+            ('LACS', 3050, 'Topics in Language, Literature, and Culture', 3),
+            ('LACS', 3160, 'European Cinema', 3),
+            ('LBST', 1102, 'The Arts and Society: Film', 3),
+            ('POLS', 3128, 'Politics and Film', 3),
+            ('RELS', 2246, 'Jesus on the Silver Screen', 3),
+            ('RELS', 3212, 'Religion, Media, and Film', 3),
+            ('SPAN', 3160, 'Studies in Hispanic Film', 3),
+            ('THEA', 2290, 'Acting on Camera I', 3),
+            ('THEA', 2320, 'Playwriting I', 3),
+            ('THEA', 4001, 'Topics in Theatre', 1),
+
+            -- MINOR PREREQUISITES
+            ('COMM', 3120, 'Media, Technology & Communication', 3),
+            ('COMM', 2100, 'Introduction to Communication Theory', 3),
+            ('THEA', 2270, 'Acting II', 3),
+            ('THEA', 1270, 'Acting I', 3),
+            ('THEA', 1300, 'Play Analysis', 3)
             """)
 con.commit()
 
@@ -596,7 +647,36 @@ cur.execute("""
             ('BINF', 3121, 1, 'MATH', 1241),
             ('BINF', 3121, 1, 'STAT', 1220),
             ('BINF', 3121, 1, 'STAT', 1221),
-            ('BINF', 3121, 1, 'STAT', 2122)
+            ('BINF', 3121, 1, 'STAT', 2122),
+
+            -- MINOR PREREQUISITES
+            ('MATH', 2171, 0, 'MATH', 1242),
+            ('MATH', 2241, 0, 'MATH', 1242),
+            ('MATH', 2242, 0, 'MATH', 2241),
+
+            ('COMM', 3052, 0, 'COMM', 3120),
+            ('COMM', 3120, 0, 'COMM', 2100),
+            ('FILM', 3121, 0, 'FILM', 3120),
+            ('FILM', 3221, 0, 'FILM', 3220),
+            ('FILM', 3800, 0, 'FILM', 1502),
+            ('FILM', 3800, 1, 'FILM', 3120),
+            ('FILM', 4120, 0, 'FILM', 3120),
+            ('FILM', 4120, 1, 'FILM', 3220),
+            ('FILM', 4121, 0, 'FILM', 3120),
+            ('FILM', 4122, 0, 'FILM', 3120),
+            ('FILM', 4220, 0, 'FILM', 3120),
+            ('FILM', 4221, 0, 'FILM', 1502),
+            ('FILM', 4221, 1, 'FILM', 3120),
+            ('FILM', 4320, 0, 'FILM', 3120),
+            ('FILM', 4410, 0, 'FILM', 1502),
+            ('FILM', 4410, 1, 'FILM', 3120),
+            ('JAPN', 3060, 0, 'WRDS', 1103),
+            ('JAPN', 3060, 0, 'WRDS', 1104),
+            ('LACS', 3160, 0, 'WRDS', 1103),
+            ('LACS', 3160, 0, 'WRDS', 1104),
+            ('THEA', 2290, 0, 'THEA', 2270),
+            ('THEA', 2270, 0, 'THEA', 1270),
+            ('THEA', 2320, 0, 'THEA', 1300)
             """)
 con.commit()
 
@@ -1035,6 +1115,94 @@ cur.execute("""
             (5, 0, "PHYS", 2101),
             (5, 0, "PHYS", 2102),
             (5, 0, "PSYC", 1101)
+            """)
+con.commit()
+
+# minors
+cur.execute("""
+            INSERT INTO Minors (name) VALUES
+            ("Mathematics"),
+            ("Film Studies")
+            """)
+con.commit()
+
+# major_sections
+cur.execute("""
+            INSERT INTO Minor_Sections (minor_id, section, credit_requirement) VALUES
+            (1, "Required Courses", 9),
+            (1, "Restricted Elective Course", 3),
+            (1, "Unresticted Elective Courses", 6),
+            (2, "Required Courses", 3),
+            (2, "Elective History/Theory Courses", 15)
+            """)
+con.commit()
+
+# major_section_requirements
+cur.execute("""
+            INSERT INTO Minor_Section_Requirements VALUES
+            -- MATH MINOR
+            (1, 0, 'MATH', 1241),
+            (1, 1, 'MATH', 1242),
+            (1, 2, 'MATH', 2164),
+            (1, 2, 'MATH', 2171),
+            (2, 0, 'MATH', 2241),
+            (2, 0, 'MATH', 2242),
+            (2, 0, 'MATH', 2164),
+            (2, 0, 'MATH', 2171),
+            (2, 0, 'STAT', 2122),
+            (2, 0, 'MATH', 3000),
+            (2, 0, 'MATH', 4000),
+            (2, 0, 'STAT', 3000),
+            (2, 0, 'STAT', 4000),
+            (2, 0, 'OPRS', 3000),
+            (2, 0, 'OPRS', 4000),
+            (3, 0, 'MATH', 3000),
+            (3, 0, 'MATH', 4000),
+            (3, 0, 'STAT', 3000),
+            (3, 0, 'STAT', 4000),
+            (3, 0, 'OPRS', 3000),
+            (3, 0, 'OPRS', 4000),
+
+            -- FILM MINOR
+            (4, 0, 'FILM', 1502),
+            (5, 0, 'AFRS', 2105),
+            (5, 0, 'AFRS', 3192),
+            (5, 0, 'AMST', 3090),
+            (5, 0, 'COMM', 3050),
+            (5, 0, 'COMM', 3052),
+            (5, 0, 'COMM', 3125),
+            (5, 0, 'ENGL', 2106),
+            (5, 0, 'ENGL', 3050),
+            (5, 0, 'ENGL', 3072),
+            (5, 0, 'FILM', 3050),
+            (5, 0, 'FILM', 3051),
+            (5, 0, 'FILM', 3120),
+            (5, 0, 'FILM', 3121),
+            (5, 0, 'FILM', 3220),
+            (5, 0, 'FILM', 3221),
+            (5, 0, 'FILM', 3800),
+            (5, 0, 'FILM', 4120),
+            (5, 0, 'FILM', 4121),
+            (5, 0, 'FILM', 4122),
+            (5, 0, 'FILM', 4220),
+            (5, 0, 'FILM', 4221),
+            (5, 0, 'FILM', 4320),
+            (5, 0, 'FILM', 4410),
+            (5, 0, 'GERM', 3660),
+            (5, 0, 'HIST', 3010),
+            (5, 0, 'HIST', 3011),
+            (5, 0, 'JAPN', 3060),
+            (5, 0, 'JAPN', 3140),
+            (5, 0, 'LACS', 3050),
+            (5, 0, 'LACS', 3160),
+            (5, 0, 'LBST', 1102),
+            (5, 0, 'POLS', 3128),
+            (5, 0, 'RELS', 2246),
+            (5, 0, 'RELS', 3212),
+            (5, 0, 'SPAN', 3160),
+            (5, 0, 'THEA', 2290),
+            (5, 0, 'THEA', 2320),
+            (5, 0, 'THEA', 4001)
             """)
 con.commit()
 

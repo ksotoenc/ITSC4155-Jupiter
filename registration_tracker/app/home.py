@@ -2,6 +2,7 @@ import streamlit as st
 # import streamlit_authenticator as stauth
 from controllers.students import get_all_students
 from controllers.advisors import get_all_advisors
+from controllers.admins import get_all_admins
 
 s_usernames = []
 s_passwords = []
@@ -15,6 +16,12 @@ advisors = get_all_advisors()
 for row in advisors:
     a_usernames.append(row['username'])
     a_passwords.append(row['password'])
+admin_usernames = []
+admin_passwords = []
+admins = get_all_admins()
+for row in admins:
+    admin_usernames.append(row['username'])
+    admin_passwords.append(row['password'])
 
 # Initialize session stae with current user
 if "username" not in st.session_state:
@@ -39,24 +46,39 @@ password = st.text_input("Password", type="password")
 
 if st.button("Login"):
     username_index = -1
+    user_defined = False
     try:
         username_index = s_usernames.index(username)
     except ValueError:
         pass
-    # if username is in student username list
-    if username_index != -1:
+    if username_index != -1:    # if username is in student username list
+        user_defined = True
         if s_passwords[username_index] == password:
             st.switch_page("pages/student.py")
         else:
             st.error("Role selected and/or credentials do not match. Please try again.")
-    else:   # username not in student list
+    else:   # check username in advisor username list
         try:
             username_index = a_usernames.index(username)
         except ValueError:
             pass
-        # if username is in admin username list
-        if username_index != -1 and a_passwords[username_index] == password:
+
+    if not user_defined and username_index != -1:   # if username is in advisor username list
+        user_defined = True
+        if a_passwords[username_index] == password:
             st.switch_page("pages/advisor.py")
+        else:
+            st.error("Role selected and/or credentials do not match. Please try again.")
+    else:   # check username in admin username list
+        try:
+            username_index = admin_usernames.index(username)
+        except ValueError:
+            pass
+
+    if not user_defined and username_index != -1:   # if username is in admin username list
+        user_defined = True     # line not needed but here for symmetry
+        if admin_passwords[username_index] == password:
+            st.switch_page("pages/admin.py")
         else:
             st.error("Role selected and/or credentials do not match. Please try again.")
 
