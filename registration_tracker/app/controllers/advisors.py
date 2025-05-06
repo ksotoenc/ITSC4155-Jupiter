@@ -102,3 +102,28 @@ def delete_advisor(id):
         return {"success": False, "message": f"Error deleting advisor: {e}"}
     finally:
         con.close()
+
+# create notes
+def get_advisor_note(advisor_id, student_id, plan_id):
+    con = get_db_connection()
+    query = """
+        SELECT note_text FROM Advisor_Notes
+        WHERE advisor_id = ? AND student_id = ? AND plan_id = ?
+        ORDER BY timestamp DESC
+        LIMIT 1
+    """
+    result = con.execute(query, (advisor_id, student_id, plan_id)).fetchone()
+    con.close()
+    return result["note_text"] if result else ""
+
+# save notes
+def save_advisor_note(advisor_id, student_id, plan_id, note_text):
+    from datetime import datetime
+    con = get_db_connection()
+    query = """
+        INSERT INTO Advisor_Notes (advisor_id, student_id, plan_id, note_text, timestamp)
+        VALUES (?, ?, ?, ?, ?)
+    """
+    con.execute(query, (advisor_id, student_id, plan_id, note_text, datetime.now().isoformat()))
+    con.commit()
+    con.close()
