@@ -407,17 +407,21 @@ if "username" in st.session_state and st.session_state.username:
                                             else:
                                                 st.error(result["message"])
                     
-                    # Add a section for advisor notes about the suggestion
+                   # Add a section for advisor notes about the suggestion
+                    existing_note = c_advisor.get_advisor_note(adv_id, student['ID'], suggestion_plan['id'])
+
                     st.subheader("Advisor Notes")
                     advisor_notes = st.text_area(
                         "Add notes about your suggestion (will be visible to the student)", 
+                        value=existing_note,
                         height=150,
                         key="advisor_notes"
                     )
                     
                     # Save notes to the plan
                     if st.button("Save Notes"):
-                        st.success("Notes saved successfully!")
+                        c_advisor.save_advisor_note(adv_id, student['ID'], suggestion_plan['id'], advisor_notes)
+                    st.success("Notes saved successfully!")
                     
                     # Submit suggestion button
                     if st.button("Submit Suggestion to Student"):
