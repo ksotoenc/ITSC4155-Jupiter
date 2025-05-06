@@ -88,7 +88,7 @@ admin_table = """   CREATE TABLE IF NOT EXISTS Admins (
 note_table = """    CREATE TABLE IF NOT EXISTS Notes (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     content TEXT NOT NULL,
-                    created_at INTEGER NOT NULL,
+                    timestamp INTEGER,
                     student_id INTEGER,
                     advisor_id INTEGER,
                     plan_id INTEGER NOT NULL,
@@ -734,11 +734,14 @@ if (res[0] == 0):
     cur.execute("""
                 INSERT INTO Admins (username, password) VALUES
                 ('ldeoliv1', 'pword')
+                ('ksotoenc', 'pword')
+                ('amoua', 'pword')
+                ('jgrand', 'pword')
                 """)
 
     # notes
     cur.execute("""
-                INSERT INTO Notes (content, created_at, student_id, advisor_id, plan_id) VALUES
+                INSERT INTO Notes (content, timestamp, student_id, advisor_id, plan_id) VALUES
                 ("This is a temporary note created by the advisor to show as an example for the notes feature!", 1748528160, NULL, 3409243, 1),
                 ("This is another note created by the student slightly later...", 1748538160, 1600343, NULL, 1)
                 """)

@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-
-# Import controller functions
 from controllers.students import add_student, update_student, delete_student
 from controllers.advisors import add_advisor, update_advisor, delete_advisor
 from controllers.courses import add_course, update_course, delete_course
@@ -9,6 +7,55 @@ from controllers.semesters import add_semester, update_semester, delete_semester
 from controllers.plans import update_plan, delete_plan
 from controllers.prerequisites import add_prereq, update_prereq, delete_prereq
 from controllers.majors import add_major, update_major, delete_major
+from auth_utils import protect_page
+
+# Hide the default page navigation
+hide_streamlit_style = """
+<style>
+    #MainMenu {visibility: hidden;}
+    header {visibility: hidden;}
+    .css-18e3th9 {padding-top: 0;}
+    /* Hide default sidebar menu items based on navigation sections */
+    [data-testid="stSidebarNav"] {
+        display: none;
+    }
+    /* Or to hide specific elements instead of all navigation */
+    section[data-testid="stSidebar"] > div.css-1d391kg {
+        padding-top: 2rem;
+    }
+    /* Ensure custom sidebar elements are visible */
+    .custom-sidebar {
+        display: block !important;
+    }
+</style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+# Role-based protection
+protect_page("admin")
+
+with st.sidebar:
+    st.markdown('<div class="custom-sidebar">', unsafe_allow_html=True)
+    st.title("Navigation")
+ 
+    if st.session_state.user_role == "student":
+        if st.button("Dashboard"):
+            st.switch_page("pages/student.py")
+        if st.button("Graduation Plans"):
+            st.switch_page("pages/plans.py")
+    elif st.session_state.user_role == "advisor":
+        if st.button("Advisor Dashboard"):
+            st.switch_page("pages/advisor.py")
+    elif st.session_state.user_role == "admin":
+        if st.button("Admin Dashboard"):
+            st.switch_page("pages/admin.py")
+    # Add logout button
+    if st.button("Logout"):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
+        st.switch_page("home.py")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Dictionary to store form configurations for each controller
 CONTROLLER_CONFIGS = {
