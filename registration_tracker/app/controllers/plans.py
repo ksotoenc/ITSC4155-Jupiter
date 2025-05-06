@@ -9,7 +9,7 @@ def get_db_connection():
     con.row_factory = sqlite3.Row  # Enables dictionary-like row access
     return con
 
-def create_plan(student_id, advisor_id, name, major_id, concentration_id, start_term):
+def create_plan(student_id, advisor_id, name, major_id, concentration_id, start_term, is_suggestion=0, original_plan_id=None):
     # Parse the start_term string (expected format: "Fall 2025" or "Spring 2026")
     term_parts = start_term.split()
     if len(term_parts) != 2:
@@ -22,10 +22,10 @@ def create_plan(student_id, advisor_id, name, major_id, concentration_id, start_
     try:
         # Insert the plan and get its ID
         query = """
-            INSERT INTO Plans (name, num_semesters, student_id, advisor_id, concentration_id, major_id)
-            VALUES (?, 8, ?, ?, ?, ?)
+            INSERT INTO Plans (name, num_semesters, student_id, advisor_id, concentration_id, major_id, is_suggestion, original_plan_id)
+            VALUES (?, 8, ?, ?, ?, ?, ?, ?)
         """
-        cur = con.execute(query, (name, student_id, advisor_id, concentration_id, major_id))
+        cur = con.execute(query, (name, student_id, advisor_id, concentration_id, major_id, is_suggestion, original_plan_id))
         plan_id = cur.lastrowid  # Get the ID of the newly inserted plan
         
         # Find the semester IDs for the next 8 semesters starting from start_term
@@ -139,7 +139,7 @@ def get_plans(user, user_id):
     return plans
 
 # update a plan (admin)
-def update_plan(plan_id, name=None, num_semesters=None, student_id=None, advisor_id=None):
+def update_plan(plan_id, name=None, num_semesters=None, student_id=None, advisor_id=None, suggestion_accepted=False):
     fields = []
     values = []
 
@@ -155,6 +155,11 @@ def update_plan(plan_id, name=None, num_semesters=None, student_id=None, advisor
     if advisor_id:
         fields.append("advisor_id = ?")
         values.append(advisor_id)
+    if suggestion_accepted:
+        fields.append("is_suggestion = ?")
+        values.append(0)
+        fields.append("original_plan_id = ?")
+        values.append(None)
 
     if not fields:
         return {"success": False, "message": "No fields to update."}

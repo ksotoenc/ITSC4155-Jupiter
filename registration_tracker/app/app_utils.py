@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3, time
 import streamlit as st
 import pandas as pd
 import controllers.plans as c_plans
@@ -235,8 +235,7 @@ def get_available_courses(plan_id, semester_id, major_id):
     finally:
         con.close()
         
-# Add this to your courses controller (c_courses)
-def remove_semester_course(plan_id, semester_id, course_subject, course_number):
+def remove_from_semester(plan_id, semester_id, course_subject, course_number):
     """
     Remove a course from a semester.
     Returns a dictionary with success status and message.
@@ -295,10 +294,14 @@ def remove_semester_course(plan_id, semester_id, course_subject, course_number):
                     dependent_courses.append(f"{fc[0]} {fc[1]} - {fc[2]}")
         
         if dependent_courses:
+            error_msg = f"Cannot remove. It is a prerequeisite for: \n\n{', '.join(dependent_courses)}"
+            st.error(error_msg)
+            time.sleep(3)
             return {
                 "success": False,
-                "message": f"Cannot remove this course as it's a prerequisite for: {', '.join(dependent_courses)}"
+                "message": error_msg
             }
+            
         
         # If no dependencies, remove the course
         delete_query = """
@@ -339,7 +342,7 @@ def display_plan(plan_id):
     # Create a container for the progress bar
     progress_container = st.container()
     with progress_container:
-        st.write("Total Credits: Calculating...")
+        st.write("Degree Progress")
         progress_bar = st.progress(0)
     
     # Display each semester in an expander
@@ -376,7 +379,7 @@ def display_plan(plan_id):
     progress_percentage = min(total_credits / target_credits, 1.0)
     
     with progress_container:
-        st.write(f"Total Credits: {total_credits}/{target_credits}")
+        st.write(f"Total Credits: {total_credits}/{target_credits} - {progress_percentage:.0%}")
         progress_bar.progress(progress_percentage)
     
     # Display overall plan statistics
@@ -388,3 +391,246 @@ def display_plan(plan_id):
         st.metric("Semesters", len(semesters))
     with col3:
         st.metric("Remaining Credits", max(0, target_credits - total_credits))
+
+# Sort semesters chronologically (Spring comes before Fall in same year)
+def semester_sort_key(semester_name):
+        term, year = semester_name.split()
+        return (int(year), 0 if term == 'Spring' else 1)
+
+def display_plan_comparison(original_plan_id, suggestion_plan_id):
+    """
+    Display an original plan and a suggestion plan side by side with highlighting
+    for added (green) and removed (red) courses.
+    """
+    st.subheader("Plan Comparison")
+    
+    # Get plan details
+    original_plan = c_plans.get_plan_from_id(original_plan_id)
+    suggestion_plan = c_plans.get_plan_from_id(suggestion_plan_id)
+    
+    if not original_plan or not suggestion_plan:
+        st.error("One or both plans not found")
+        return
+    
+    # Get advisor notes (future feature)
+    advisor_notes = "Future feature: Advisor notes will be displayed here."
+    
+    # Display plan names and basic info
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown(f"### Original Plan: {original_plan['name']}")
+        major = c_majors.get_major(original_plan['major_id'])
+        st.write(f"**Major:** {major['name']}")
+    
+    with col2:
+        st.markdown(f"### Suggested Plan: {suggestion_plan['name']}")
+        if advisor_notes:
+            with st.expander("Advisor Notes"):
+                st.write(advisor_notes)
+    
+    # Get all semesters from both plans
+    original_semesters = c_semesters.get_semesters(original_plan_id)
+    suggestion_semesters = c_semesters.get_semesters(suggestion_plan_id)
+    
+    # Map semesters by term+year for easy matching
+    original_sem_map = {f"{sem['term']} {sem['year']}": sem for sem in original_semesters}
+    suggestion_sem_map = {f"{sem['term']} {sem['year']}": sem for sem in suggestion_semesters}
+    
+    # Get all unique semester names sorted chronologically
+    all_semester_names = list(set(original_sem_map.keys()).union(set(suggestion_sem_map.keys())))
+    all_semester_names.sort(key=semester_sort_key)
+    
+    # Display each semester side by side
+    for semester_name in all_semester_names:
+        st.markdown(f"## {semester_name}")
+        
+        col1, col2 = st.columns(2)
+        
+        # Display original plan semester
+        with col1:
+            st.markdown("### Original Courses")
+            if semester_name in original_sem_map:
+                sem = original_sem_map[semester_name]
+                original_courses = c_courses.get_semester_courses(sem['id'], original_plan_id)
+                
+                if original_courses:
+                    # Create a map of course identifiers for easy comparison
+                    original_course_map = {f"{c['subject']} {c['number']}": c for c in original_courses}
+                    
+                    # Check if suggestion plan has this semester
+                    suggestion_courses = []
+                    if semester_name in suggestion_sem_map:
+                        suggestion_sem = suggestion_sem_map[semester_name]
+                        suggestion_courses = c_courses.get_semester_courses(suggestion_sem['id'], suggestion_plan_id)
+                    
+                    suggestion_course_map = {f"{c['subject']} {c['number']}": c for c in suggestion_courses}
+                    
+                    # Convert to DataFrame for better display
+                    data = []
+                    for course_key, course in original_course_map.items():
+                        status = "❌ Removed" if course_key not in suggestion_course_map else "✓ Kept"
+                        color = "red" if course_key not in suggestion_course_map else "black"
+                        
+                        data.append({
+                            "Course": course_key,
+                            "Course Name": course['name'],
+                            "Credits": course['credits'],
+                            "Status": status,
+                            "Color": color
+                        })
+                    
+                    if data:
+                        df = pd.DataFrame(data)
+                        
+                        # Use Streamlit's custom formatting for the table
+                        st.write("Course list:")
+                        
+                        # Create HTML for styled table
+                        html_table = "<table style='width:100%; border-collapse: collapse;'>"
+                        html_table += "<tr style='border-bottom: 1px solid #ddd; background-color: #f2f2f2;'><th>Course</th><th>Course Name</th><th>Credits</th><th>Status</th></tr>"
+                        
+                        for _, row in df.iterrows():
+                            color = row['Color']
+                            status_class = "removed" if row['Status'].startswith("❌") else ""
+                            
+                            html_table += f"<tr style='border-bottom: 1px solid #ddd; color: {color};'>"
+                            html_table += f"<td>{row['Course']}</td>"
+                            html_table += f"<td>{row['Course Name']}</td>"
+                            html_table += f"<td>{row['Credits']}</td>"
+                            html_table += f"<td>{row['Status']}</td>"
+                            html_table += "</tr>"
+                            
+                        html_table += "</table>"
+                        
+                        st.markdown(html_table, unsafe_allow_html=True)
+                        
+                        # Show semester credit total
+                        semester_credits = sum(course['credits'] for course in original_courses)
+                        st.write(f"**Semester Credits:** {semester_credits}")
+                    else:
+                        st.write("No courses in this semester")
+                else:
+                    st.write("No courses in this semester")
+            else:
+                st.write("Semester not in original plan")
+        
+        # Display suggestion plan semester
+        with col2:
+            st.markdown("### Suggested Courses")
+            if semester_name in suggestion_sem_map:
+                sem = suggestion_sem_map[semester_name]
+                suggestion_courses = c_courses.get_semester_courses(sem['id'], suggestion_plan_id)
+                
+                if suggestion_courses:
+                    # Create a map of course identifiers for easy comparison
+                    suggestion_course_map = {f"{c['subject']} {c['number']}": c for c in suggestion_courses}
+                    
+                    # Check if original plan has this semester
+                    original_courses = []
+                    if semester_name in original_sem_map:
+                        original_sem = original_sem_map[semester_name]
+                        original_courses = c_courses.get_semester_courses(original_sem['id'], original_plan_id)
+                    
+                    original_course_map = {f"{c['subject']} {c['number']}": c for c in original_courses}
+                    
+                    # Convert to DataFrame for better display
+                    data = []
+                    for course_key, course in suggestion_course_map.items():
+                        status = "✅ Added" if course_key not in original_course_map else "✓ Kept"
+                        color = "green" if course_key not in original_course_map else "black"
+                        
+                        data.append({
+                            "Course": course_key,
+                            "Course Name": course['name'],
+                            "Credits": course['credits'],
+                            "Status": status,
+                            "Color": color
+                        })
+                    
+                    if data:
+                        df = pd.DataFrame(data)
+                        
+                        # Use Streamlit's custom formatting for the table
+                        st.write("Course list:")
+                        
+                        # Create HTML for styled table
+                        html_table = "<table style='width:100%; border-collapse: collapse;'>"
+                        html_table += "<tr style='border-bottom: 1px solid #ddd; background-color: #f2f2f2;'><th>Course</th><th>Course Name</th><th>Credits</th><th>Status</th></tr>"
+                        
+                        for _, row in df.iterrows():
+                            color = row['Color']
+                            
+                            html_table += f"<tr style='border-bottom: 1px solid #ddd; color: {color};'>"
+                            html_table += f"<td>{row['Course']}</td>"
+                            html_table += f"<td>{row['Course Name']}</td>"
+                            html_table += f"<td>{row['Credits']}</td>"
+                            html_table += f"<td>{row['Status']}</td>"
+                            html_table += "</tr>"
+                            
+                        html_table += "</table>"
+                        
+                        st.markdown(html_table, unsafe_allow_html=True)
+                        
+                        # Show semester credit total
+                        semester_credits = sum(course['credits'] for course in suggestion_courses)
+                        st.write(f"**Semester Credits:** {semester_credits}")
+                    else:
+                        st.write("No courses in this semester")
+                else:
+                    st.write("No courses in this semester")
+            else:
+                st.write("Semester not in suggestion plan")
+    
+    # Decision buttons
+    st.markdown("---")
+    st.subheader("Decision")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        # Update the suggestion plan with original plan's metadata and remove suggestion flags
+        if st.button("Accept Suggestion", key=f"accept_{suggestion_plan_id}"):
+            original_name = original_plan['name']
+            con = get_db_connection()
+            try:
+                update_result = c_plans.update_plan(
+                    suggestion_plan_id, 
+                    name=original_name,  
+                    student_id=original_plan['student_id'],
+                    advisor_id=original_plan['advisor_id'],
+                    suggestion_accepted=True
+                )
+                if not update_result["success"]:
+                    st.error(f"Error updating plan: {update_result['message']}")
+                    return False
+                
+                # After update, delete the original plan
+                delete_result = c_plans.delete_plan(original_plan_id)
+                if not delete_result["success"]:
+                    st.error(f"Error deleting original plan: {delete_result['message']}")
+                    return False
+                
+                st.success("Suggestion accepted! Your plan has been updated.")
+                time.sleep(1)
+                st.rerun() 
+                return True
+            except Exception as e:
+                st.error(f"Error processing plan acceptance: {e}")
+                return False
+            finally:
+                con.close()
+    
+    with col2:
+         # When rejecting, delete the suggestion plan
+        if st.button("Reject Suggestion", key=f"reject_{suggestion_plan_id}"):
+            delete_result = c_plans.delete_plan(suggestion_plan_id)
+            
+            if delete_result["success"]:
+                st.info("Suggestion rejected and removed.")
+                time.sleep(1)
+                st.rerun()
+                return False
+            else:
+                st.error(f"Error deleting suggestion plan: {delete_result['message']}")
+                return False
+    return None

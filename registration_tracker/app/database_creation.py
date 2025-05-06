@@ -49,10 +49,13 @@ plan_table = """    CREATE TABLE IF NOT EXISTS Plans (
                     num_semesters INTEGER NOT NULL,
                     student_id INTEGER NOT NULL,
                     advisor_id INTEGER,
+                    is_suggestion BOOLEAN DEFAULT 0,
+                    original_plan_id INTEGER,
                     FOREIGN KEY(student_id) REFERENCES Students(id),
-                    FOREIGN KEY(advisor_id) REFERENCES Advisors(id)
-                    FOREIGN KEY(major_id) REFERENCES Majors(id)
-                    FOREIGN KEY(concentration_id) REFERENCES Concentrations(id)
+                    FOREIGN KEY(advisor_id) REFERENCES Advisors(id),
+                    FOREIGN KEY(major_id) REFERENCES Majors(id),
+                    FOREIGN KEY(concentration_id) REFERENCES Concentrations(id),
+                    FOREIGN KEY(original_plan_id) REFERENCES Plans(id)
                     );
                     """
 student_table = """ CREATE TABLE IF NOT EXISTS Students (

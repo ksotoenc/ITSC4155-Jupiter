@@ -6,9 +6,10 @@ import controllers.advisors as c_advisor
 import controllers.plans as c_plan
 import controllers.semesters as c_semester
 import controllers.courses as c_course
-from app_utils import display_plan, get_available_courses, add_course_to_semester, get_db_connection
+#from app_utils import display_plan, get_available_courses, add_course_to_semester, get_db_connection, remove_from_semester, dis
+from app_utils import *
 
-# If user is logged in, show the plans page
+# If student is logged in, show the plans page
 if "username" in st.session_state and st.session_state.username:
     st.title("Graduation Plans")
     username = st.session_state.username
@@ -22,7 +23,7 @@ if "username" in st.session_state and st.session_state.username:
     student = c_student.get_student("username", username)
 
     # Create tabs for different functionalities
-    tab1, tab2, tab3 = st.tabs(["Create New Plan", "View Existing Plans", "Edit Plan"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Create New Plan", "View Existing Plans", "Edit Plan", "Review Suggestions"])
     
     with tab1:
         st.write("Let's create a new plan!")
@@ -151,7 +152,16 @@ if "username" in st.session_state and st.session_state.username:
                             if courses:
                                 st.write("Current Courses:")
                                 for course in courses:
-                                    st.write(f"• {course['subject']} {course['number']} - {course['name']} ({course['credits']} credits)")
+                                    col1, col2 = st.columns([5, 1])
+                                    with col1:
+                                        st.write(f"• {course['subject']} {course['number']} - {course['name']} ({course['credits']} credits)")
+                                    with col2:
+                                        # Add remove button for each course
+                                        if st.button("Remove", key=f"remove_{semester_id}_{course['subject']}_{course['number']}"):
+                                            # Remove the course from the semester
+                                            remove_from_semester(plan['id'], semester_id, course['subject'], course['number'])
+                                            st.success(f"Removed {course['subject']} {course['number']} from {semester_name}")
+                                            st.rerun()
                             else:
                                 st.write("No courses in this semester yet.")
                             
@@ -406,6 +416,56 @@ if "username" in st.session_state and st.session_state.username:
                     st.session_state.editing_plan = False
                     st.session_state.current_plan_id = None
                     st.rerun()
+    with tab4:
+        st.subheader("Review Plan Suggestions")
+        
+        # Get all plans for this student
+        all_plans = c_plan.get_plans("student", student['ID'])
+        
+        # Filter out the original plans (not suggestions)
+        original_plans = [p for p in all_plans if not p['is_suggestion']]
+        
+        if not original_plans:
+            st.info("You don't have any plans yet. Create one in the 'Create New Plan' tab.")
+        else:
+            # Filter to find only those original plans that have suggestions
+            plans_with_suggestions = []
+            for plan in original_plans:
+                # Find suggestions for this plan
+                suggestions = [p for p in all_plans if p['is_suggestion'] == 1 and p['original_plan_id'] == plan['id']]
+                if suggestions:
+                    plans_with_suggestions.append((plan, suggestions))
+            if not plans_with_suggestions:
+                st.info("You don't have any suggestions from advisors yet.")
+            else:
+                st.write(f"You have advisor suggestions for {len(plans_with_suggestions)} plan(s).")
+                
+                # Let user select which plan's suggestions to view
+                plan_names = [f"{plan['name']} ({len(suggestions)} suggestion{'s' if len(suggestions) > 1 else ''})" 
+                              for plan, suggestions in plans_with_suggestions]
+                selected_plan_idx = st.selectbox(
+                    "Select a plan to view suggestions", 
+                    options=range(len(plan_names)),
+                    format_func=lambda x: plan_names[x]
+                )
+                
+                selected_plan, suggestions = plans_with_suggestions[selected_plan_idx]
+                
+                # If there's only one suggestion, show it directly
+                if len(suggestions) == 1:
+                    suggestion = suggestions[0]
+                    display_plan_comparison(selected_plan['id'], suggestion['id'])
+                else:
+                    # Let user select which suggestion to view
+                    suggestion_names = [f"{s['name']} (by {c_advisor.get_advisor(s['advisor_id'])['name']})" for s in suggestions]
+                    selected_suggestion_idx = st.selectbox(
+                        "Select a suggestion to review", 
+                        options=range(len(suggestion_names)),
+                        format_func=lambda x: suggestion_names[x]
+                    )
+                    
+                    selected_suggestion = suggestions[selected_suggestion_idx]
+                    display_plan_comparison(selected_plan['id'], selected_suggestion['id'])                    
 else:
     st.write("Please log in to view this page.")
     # Close the database connection
