@@ -733,9 +733,9 @@ if (res[0] == 0):
     # admins
     cur.execute("""
                 INSERT INTO Admins (username, password) VALUES
-                ('ldeoliv1', 'pword')
-                ('ksotoenc', 'pword')
-                ('amoua', 'pword')
+                ('ldeoliv1', 'pword'),
+                ('ksotoenc', 'pword'),
+                ('amoua', 'pword'),
                 ('jgrand', 'pword')
                 """)
 
