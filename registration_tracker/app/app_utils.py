@@ -603,12 +603,6 @@ def display_plan_comparison(original_plan_id, suggestion_plan_id):
                 if not update_result["success"]:
                     st.error(f"Error updating plan: {update_result['message']}")
                     return False
-
-                # After update, delete irrelevant suggestions related to the original plan, and then delete the original plan
-                suggestion_delete_result = c_plans.delete_suggestions(original_plan_id, suggestion_plan_id)
-                if not suggestion_delete_result["success"]:
-                    st.error(f"Error deleting suggestion plan: {delete_result['message']}")
-                    return False
                 delete_result = c_plans.delete_plan(original_plan_id)
                 if not delete_result["success"]:
                     st.error(f"Error deleting original plan: {delete_result['message']}")

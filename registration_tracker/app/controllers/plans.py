@@ -192,22 +192,3 @@ def delete_plan(plan_id):
         return {"success": False, "message": f"Error deleting plan: {e}"}
     finally:
         con.close()
-
-# delete all irrelevant suggestions related to a plan
-def delete_suggestions(original_plan_id, accepted_suggestion_id):
-        query = """
-            SELECT id FROM Plans 
-            WHERE original_plan_id = ? AND id != ?
-        """
-        con = get_db_connection()
-        try:
-            other_suggestions = con.execute(query, (original_plan_id, accepted_suggestion_id)).fetchall()
-            
-            # Delete all other suggestions
-            for suggestion in other_suggestions:
-                other_suggestion_id = suggestion[0]
-                delete_plan(other_suggestion_id)
-        except sqlite3.Error as e:
-            return {"success": False, "message": f"Error deleting suggestions: {e}"}
-        finally:
-            con.close()
